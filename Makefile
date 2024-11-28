@@ -53,7 +53,7 @@ SFILES=src/entry.S src/exception_vectors.S
 OBJS=$(CFILES:%.o=%.c) $(SFILES:%.o=%.S)
 
 ifndef VRS_TEST
-	CFILES += src/vrs_test.c
+	CFILES += src/test/vrs_test.c
 else
 	CFILES += $(VRS_TEST)
 endif
