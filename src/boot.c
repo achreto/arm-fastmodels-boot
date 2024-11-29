@@ -57,7 +57,7 @@ void bootloader_init(struct bootloader_args *data)
     /* enable caches */
     cachectrl_enable_all_caches();
 
-    MSG("Skipping lower EL configuration.");
+    MSG("Skipping lower EL configuration.\n");
     MSG("Reached end of initialization sequence...\n");
 
     vrs_test();

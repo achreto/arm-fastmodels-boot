@@ -1,0 +1,8 @@
+#include <vrs_test.h>
+
+int vrs_test() {
+    MSG("Running VRS tests for: x86_32_pagetable\n");
+
+    MSG("Velosiraptor tests completed.\n");
+    return 1;
+}
