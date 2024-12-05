@@ -12,8 +12,7 @@
 // // the input addres to be mapped
 #define INPUT_ADDR 0x0
 
-
-// the output address to be mapped
+// the output address to be mapped, it's a 16GB region
 #define OUTPUT_ADDR 0x1000
 
 // the size of the mapping
@@ -22,12 +21,12 @@
 int vrs_test() {
     MSG("No velosiraptor tests run\n");
 
-    volatile uint32_t *control = (uint32_t *)CONTROL_BASE;
+    volatile uint64_t *control = (uint64_t *)CONTROL_BASE;
     volatile uint64_t *memory = (uint64_t *)TRANSLATION_BASE;
 
     // configure some mapping
-    control[0] = (MAP_SIZE << 16) | (OUTPUT_ADDR);
-    control[1] = (1 << 15);
+    control[0] = (OUTPUT_ADDR | 0x3);
+
 
     // write to the memory
     MSG("Writing memory\n");

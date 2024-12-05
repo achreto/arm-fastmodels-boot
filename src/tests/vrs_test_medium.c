@@ -25,25 +25,52 @@ int vrs_test() {
     volatile uint64_t *memory = (uint64_t *)TRANSLATION_BASE;
 
     // configure some mapping
+    MSG("Reconfigure..\n");
     control[0] = OUTPUT_ADDR;
     control[1] = MAP_SIZE | 0x1;
     control[2] = 0x3;
 
     // write to the memory
     MSG("Writing memory\n");
-    *memory = 0x1234;
+    for (size_t i = 0; i < MAP_SIZE / sizeof(*memory); i++) {
+        memory[i] = i;
+    }
+
+    MSG("Reconfigure..\n");
+    control[0] = 2 * OUTPUT_ADDR;
+
+    // write some more memory
+    MSG("Writing memory..\n");
+    for (size_t i = 0; i < MAP_SIZE / sizeof(*memory); i++) {
+        memory[i] = 2 * i;
+    }
 
     // verify
     volatile uint64_t *dca_memory = (uint64_t *)(DIRECT_ACCESS_BASE + OUTPUT_ADDR);
 
-    MSG("Verifying..2.\n");
-    if (*dca_memory != 0x1234) {
-        MSG("Error: memory not mapped correctly\n");
-        return 0;
-    } else {
-        MSG("Memory mapped correctly: %lx expected 0x1234\n", *dca_memory);
+    bool errors = false;
+    MSG("Verifying memory...\n");
+    for (size_t i = 0; i <  MAP_SIZE / sizeof(*memory); i++) {
+        if (dca_memory[i] != i) {
+            WARN("Memory[%zu] not mapped correctly: %lx expected %lx\n", i, dca_memory[i], i);
+            errors = true;
+        }
     }
 
+    MSG("Verifying memory...\n");
+    dca_memory = (uint64_t *)(DIRECT_ACCESS_BASE + 2 * OUTPUT_ADDR);
+    for (size_t i = 0; i <  MAP_SIZE / sizeof(*memory); i++) {
+        if (dca_memory[i] != 2 * i) {
+            WARN("Memory[%zu] mapped correctly: %lx expected %lx\n", i, dca_memory[i], 2 * i);
+            errors = true;
+        }
+    }
+
+    if (errors) {
+        ERROR("Errors found in memory mapping\n");
+    } else {
+        MSG("All memory mapped correctly\n");
+    }
 
     MSG("Velosiraptor tests completed.\n");
     return 1;

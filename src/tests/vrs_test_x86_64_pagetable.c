@@ -38,35 +38,68 @@ int vrs_test() {
     volatile uint64_t *memory = (uint64_t *)TRANSLATION_BASE;
 
     // configure some mapping
+    MSG("Reconfigure..\n");
     control[0] = PML4_BASE;
     control32[2] = (0x1ULL << 31);
 
     volatile uint64_t *pml4 = (uint64_t *)(DIRECT_ACCESS_BASE + PML4_BASE);
+    bzero((void *)pml4, 4096);
     pml4[0] = PDPT_BASE | 0x3;
+
     volatile uint64_t *pdpt = (uint64_t *)(DIRECT_ACCESS_BASE + PDPT_BASE);
+    bzero((void *)pdpt, 4096);
     pdpt[0] = PDIR_BASE | 0x3;
     pdpt[1] = HUGE_OUTPUT_ADDR | 0x3 | (1 << 7);
 
     volatile uint64_t *pdir = (uint64_t *)(DIRECT_ACCESS_BASE + PDIR_BASE);
+    bzero((void *)pdir, 4096);
     pdir[0] = PTABLE_BASE | 0x3;
     pdir[1] = LARGE_OUTPUT_ADDR | 0x3 | (1 << 7);
 
     volatile uint64_t *ptable = (uint64_t *)(DIRECT_ACCESS_BASE + PTABLE_BASE);
+    bzero((void *)ptable, 4096);
     ptable[0] = OUTPUT_ADDR | 0x3;
 
     // write to the memory
     MSG("Writing memory\n");
-    *memory = 0x1234;
+    for (size_t i = 0; i < MAP_SIZE / sizeof(*memory); i++) {
+        memory[i] = i;
+    }
+
+    MSG("Reconfigure..\n");
+    ptable[0] = (2 * OUTPUT_ADDR) | 0x3;
+
+    // write some more memory
+    MSG("Writing memory..\n");
+    for (size_t i = 0; i < MAP_SIZE / sizeof(*memory); i++) {
+        memory[i] = 2 * i;
+    }
 
     // verify
     volatile uint64_t *dca_memory = (uint64_t *)(DIRECT_ACCESS_BASE + OUTPUT_ADDR);
 
-    MSG("Verifying..2.\n");
-    if (*dca_memory != 0x1234) {
-        MSG("Error: memory not mapped correctly\n");
-        return 0;
+    bool errors = false;
+    MSG("Verifying memory...\n");
+    for (size_t i = 0; i < MAP_SIZE / sizeof(*memory); i++) {
+        if (dca_memory[i] != i) {
+            WARN("Memory[%zu] not mapped correctly: %lx expected %lx\n", i, dca_memory[i], i);
+            errors = true;
+        }
+    }
+
+    MSG("Verifying memory...\n");
+    dca_memory = (uint64_t *)(DIRECT_ACCESS_BASE + 2 * OUTPUT_ADDR);
+    for (size_t i = 0; i <  MAP_SIZE / sizeof(*memory); i++) {
+        if (dca_memory[i] != 2 * i) {
+            WARN("Memory[%zu] mapped correctly: %lx expected %lx\n", i, dca_memory[i], 2 * i);
+            errors = true;
+        }
+    }
+
+    if (errors) {
+        ERROR("Errors found in memory mapping\n");
     } else {
-        MSG("Memory mapped correctly: %lx expected 0x1234\n", *dca_memory);
+        MSG("All memory mapped correctly\n");
     }
 
     MSG("Velosiraptor tests completed.\n");
