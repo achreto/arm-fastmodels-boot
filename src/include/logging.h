@@ -11,10 +11,10 @@
 #include <stdio.h>
 
 ///< a basic message printing macro
-#define MSG(format, ...) printf("[ARMv8]: " format, ## __VA_ARGS__ )
+#define MSG(format, ...) printf("\033[97;1m[ARMv8]: " format "\033[0m", ## __VA_ARGS__ )
 
-#define WARN(format, ...) printf("[ARMv8]: WARNING " format, ## __VA_ARGS__ )
+#define WARN(format, ...) printf("\033[33;1m[ARMv8]: WARNING " format "\033[0m", ## __VA_ARGS__ )
 
-#define ERROR(format, ...) printf("[ARMv8]: ERROR " format, ## __VA_ARGS__ )
+#define ERROR(format, ...) printf("\033[91;1m[ARMv8]: ERROR " format "\033[0m", ## __VA_ARGS__ )
 
 #endif /* LOGGING_H_ */
