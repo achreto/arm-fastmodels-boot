@@ -21,14 +21,15 @@
 int vrs_test() {
     MSG("Running VRS tests for: mpu\n");
 
-    volatile uint64_t *control = (uint64_t *)CONTROL_BASE;
+    volatile uint32_t *control = (uint32_t *)CONTROL_BASE;
     volatile uint64_t *memory = (uint64_t *)TRANSLATION_BASE;
 
     // configure some mapping
     MSG("Reconfigure..\n");
-    control[0] = OUTPUT_ADDR;
-    control[1] = MAP_SIZE | 0x1;
-    control[2] = 0x3;
+    control[1] = 0x1;
+    control[2] = 0x0;
+    control[3] = INPUT_ADDR;
+    control[4] = MAP_SIZE | 0x1;
 
     // write to the memory
     MSG("Writing memory\n");
@@ -37,11 +38,9 @@ int vrs_test() {
     }
 
 
-    memory = (uint64_t *)(TRANSLATION_BASE + MAP_SIZE);
-
     MSG("Reconfigure..\n");
-    control[1] = (2* MAP_SIZE) | 0x1;
-
+    control[4] = (2 * MAP_SIZE) | 0x1;
+    memory = (uint64_t *)(TRANSLATION_BASE + MAP_SIZE);
     // write some more memory
     MSG("Writing memory..\n");
     for (size_t i = 0; i < MAP_SIZE / sizeof(*memory); i++) {

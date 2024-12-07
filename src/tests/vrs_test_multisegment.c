@@ -16,7 +16,7 @@
 #define OUTPUT_ADDR 0x1000
 
 // the size of the mapping
-#define MAP_SIZE 0x1000
+#define MAP_SIZE 0x100
 
 int vrs_test() {
     MSG("Running VRS tests for: multi_segment\n");

@@ -1,4 +1,5 @@
 #include <vrs_test.h>
+#include<string.h>
 
 /// base address of the control registers (if any)
 #define CONTROL_BASE 0x1D000000ULL

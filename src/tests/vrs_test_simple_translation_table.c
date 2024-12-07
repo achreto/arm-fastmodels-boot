@@ -1,4 +1,5 @@
 #include <vrs_test.h>
+#include<string.h>
 
 /// base address of the control registers (if any)
 #define CONTROL_BASE 0x1D000000ULL
@@ -19,7 +20,7 @@
 #define OUTPUT_ADDR 0x4000
 
 // the size of the mapping
-#define MAP_SIZE 0x10
+#define MAP_SIZE 0x1000
 
 
 int vrs_test() {
